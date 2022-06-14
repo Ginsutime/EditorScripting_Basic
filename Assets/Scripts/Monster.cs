@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Monster : MonoBehaviour
 {
+    [Separator(2, 20)]
     [SerializeField] private MonsterData _data;
-
     public MonsterData Data => _data;
 
     private void Awake()
