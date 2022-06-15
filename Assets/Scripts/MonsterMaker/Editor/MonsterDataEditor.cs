@@ -6,22 +6,77 @@ using UnityEditor;
 [CustomEditor(typeof(MonsterData))]
 public class MonsterDataEditor : Editor
 {
+    private SerializedProperty _name;
+    private SerializedProperty _monsterType;
+    private SerializedProperty _chanceToDropItem;
+    private SerializedProperty _rangeOfAwareness;
+    private SerializedProperty _canEnterCombat;
+    private SerializedProperty _damage;
+    private SerializedProperty _health;
+    private SerializedProperty _speed;
+    private SerializedProperty _battleCry;
+
+    private void OnEnable()
+    {
+        // FindProperty lets us search for private variables
+        _name = serializedObject.FindProperty("_name");
+        _monsterType = serializedObject.FindProperty("_monsterType");
+        _chanceToDropItem = serializedObject.FindProperty("_chanceToDropItem");
+        _rangeOfAwareness = serializedObject.FindProperty("_rangeOfAwareness");
+        _canEnterCombat = serializedObject.FindProperty("_canEnterCombat");
+        _damage = serializedObject.FindProperty("_damage");
+        _health = serializedObject.FindProperty("_health");
+        _speed = serializedObject.FindProperty("_speed");
+        _battleCry = serializedObject.FindProperty("_battleCry");
+    }
+
     public override void OnInspectorGUI()
     {
-        MonsterData data = (MonsterData)target;
+        serializedObject.UpdateIfRequiredOrScript(); // Update if we make a change
 
-        EditorGUILayout.LabelField(data.Name.ToUpper(), EditorStyles.boldLabel);
+        EditorGUILayout.LabelField(_name.stringValue.ToUpper(), EditorStyles.boldLabel);
         EditorGUILayout.Space(10);
 
         // difficulty bar assuming all combat stats are equal (for sake of example)
-        float difficulty = data.Health + data.Damage + data.Speed;
+        float difficulty = _health.intValue + _damage.intValue + _speed.intValue;
         ProgressBar(difficulty / 100, "Difficulty");
 
-        // add before base elements
-        base.OnInspectorGUI();
-        // add below base elements
+        EditorGUILayout.LabelField("General Stats", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(_name, new GUIContent("Name"));
+        if (_name.stringValue == string.Empty)
+        {
+            EditorGUILayout.HelpBox("Caution: No name specified. Please name the monster!",
+                MessageType.Warning);
+        }
 
-        WarningBoxes();
+        EditorGUILayout.PropertyField(_monsterType, new GUIContent("Monster Type"));
+        if (_monsterType.enumValueIndex == 0)
+            EditorGUILayout.HelpBox("No MonsterType selected!", MessageType.Warning);
+
+        EditorGUILayout.LabelField("Item Drop Chance: ");
+        _chanceToDropItem.floatValue = EditorGUILayout.Slider(_chanceToDropItem.floatValue, 0, 100);
+        EditorGUILayout.PropertyField(_rangeOfAwareness, new GUIContent("Awareness"));
+        EditorGUILayout.PropertyField(_canEnterCombat, new GUIContent("Can Enter Combat?"));
+
+        EditorGUILayout.Space(10);
+        if (_canEnterCombat.boolValue == true)
+        {
+            EditorGUI.indentLevel++;
+            EditorGUILayout.LabelField("Combat Stats", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_health, new GUIContent("Health"));
+            if (_health.intValue < 0)
+                EditorGUILayout.HelpBox("Negative health not allowed!", MessageType.Warning);
+
+            EditorGUILayout.PropertyField(_damage, new GUIContent("Damage"));
+            EditorGUILayout.PropertyField(_speed, new GUIContent("Speed"));
+            EditorGUI.indentLevel--;
+        }
+
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("Dialogue", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(_battleCry, new GUIContent("Battle Cry"));
+
+        serializedObject.ApplyModifiedProperties(); // If we made a change, apply it
     }
 
     void ProgressBar(float value, string label)
@@ -29,20 +84,5 @@ public class MonsterDataEditor : Editor
         Rect rect = GUILayoutUtility.GetRect(18, 40, "TextField");
         EditorGUI.ProgressBar(rect, value, label);
         EditorGUILayout.Space(10);
-    }
-
-    void WarningBoxes()
-    {
-        MonsterData data = (MonsterData)target;
-
-        if (data.Name == string.Empty)
-        {
-            EditorGUILayout.HelpBox("Caution: No name specified. Please name the monster!",
-                MessageType.Warning);
-        }
-        if (data.Health < 0)
-            EditorGUILayout.HelpBox("Negative health not allowed!", MessageType.Warning);
-        if (data.MonsterType == MonsterType.None)
-            EditorGUILayout.HelpBox("No MonsterType selected!", MessageType.Warning);
     }
 }
