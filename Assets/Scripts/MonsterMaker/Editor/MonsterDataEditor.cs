@@ -20,6 +20,8 @@ public class MonsterDataEditor : Editor
         // add before base elements
         base.OnInspectorGUI();
         // add below base elements
+
+        WarningBoxes();
     }
 
     void ProgressBar(float value, string label)
@@ -27,5 +29,20 @@ public class MonsterDataEditor : Editor
         Rect rect = GUILayoutUtility.GetRect(18, 40, "TextField");
         EditorGUI.ProgressBar(rect, value, label);
         EditorGUILayout.Space(10);
+    }
+
+    void WarningBoxes()
+    {
+        MonsterData data = (MonsterData)target;
+
+        if (data.Name == string.Empty)
+        {
+            EditorGUILayout.HelpBox("Caution: No name specified. Please name the monster!",
+                MessageType.Warning);
+        }
+        if (data.Health < 0)
+            EditorGUILayout.HelpBox("Negative health not allowed!", MessageType.Warning);
+        if (data.MonsterType == MonsterType.None)
+            EditorGUILayout.HelpBox("No MonsterType selected!", MessageType.Warning);
     }
 }
