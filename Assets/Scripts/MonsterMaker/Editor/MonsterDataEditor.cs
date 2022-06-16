@@ -15,6 +15,7 @@ public class MonsterDataEditor : Editor
     private SerializedProperty _health;
     private SerializedProperty _speed;
     private SerializedProperty _battleCry;
+    private SerializedProperty _abilities;
 
     private void OnEnable()
     {
@@ -28,6 +29,7 @@ public class MonsterDataEditor : Editor
         _health = serializedObject.FindProperty("_health");
         _speed = serializedObject.FindProperty("_speed");
         _battleCry = serializedObject.FindProperty("_battleCry");
+        _abilities = serializedObject.FindProperty("_abilities");
     }
 
     public override void OnInspectorGUI()
@@ -73,12 +75,17 @@ public class MonsterDataEditor : Editor
             EditorGUILayout.PropertyField(_speed, new GUIContent("Speed"));
 
             EditorGUILayout.EndHorizontal();
+            if (GUILayout.Button("Random Stats"))
+            {
+                RandomizeStats();
+            }
             EditorGUI.indentLevel--;
         }
 
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("Dialogue", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(_battleCry, new GUIContent("Battle Cry"));
+        EditorGUILayout.PropertyField(_abilities, new GUIContent("Abilities"));
 
         serializedObject.ApplyModifiedProperties(); // If we made a change, apply it
     }
@@ -88,5 +95,12 @@ public class MonsterDataEditor : Editor
         Rect rect = GUILayoutUtility.GetRect(18, 40, "TextField");
         EditorGUI.ProgressBar(rect, value, label);
         EditorGUILayout.Space(10);
+    }
+
+    void RandomizeStats()
+    {
+        _health.intValue = UnityEngine.Random.Range(1, 25);
+        _damage.intValue = UnityEngine.Random.Range(1, 25);
+        _speed.intValue = UnityEngine.Random.Range(1, 25);
     }
 }
