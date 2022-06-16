@@ -63,12 +63,16 @@ public class MonsterDataEditor : Editor
         {
             EditorGUI.indentLevel++;
             EditorGUILayout.LabelField("Combat Stats", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
+
+            EditorGUIUtility.labelWidth = 70;
             EditorGUILayout.PropertyField(_health, new GUIContent("Health"));
             if (_health.intValue < 0)
                 EditorGUILayout.HelpBox("Negative health not allowed!", MessageType.Warning);
-
             EditorGUILayout.PropertyField(_damage, new GUIContent("Damage"));
             EditorGUILayout.PropertyField(_speed, new GUIContent("Speed"));
+
+            EditorGUILayout.EndHorizontal();
             EditorGUI.indentLevel--;
         }
 
