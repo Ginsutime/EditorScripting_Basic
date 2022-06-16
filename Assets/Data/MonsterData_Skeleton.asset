@@ -25,9 +25,9 @@ MonoBehaviour:
   - _name: 
     _damage: 0
     _element: 0
-  - _name: 
-    _damage: 0
+  - _name: w
+    _damage: 5
     _element: 0
-  - _name: 
-    _damage: 0
+  - _name: e
+    _damage: 10
     _element: 0

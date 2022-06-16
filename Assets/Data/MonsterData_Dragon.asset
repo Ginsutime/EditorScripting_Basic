@@ -21,4 +21,13 @@ MonoBehaviour:
   _health: 15
   _speed: 11
   _battleCry: ...
-  _abilities: []
+  _abilities:
+  - _name: 
+    _damage: 0
+    _element: 0
+  - _name: 
+    _damage: 0
+    _element: 0
+  - _name: 
+    _damage: 0
+    _element: 0
