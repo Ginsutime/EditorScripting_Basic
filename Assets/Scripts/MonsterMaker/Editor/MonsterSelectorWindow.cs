@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System;
 
 public class MonsterSelectorWindow : EditorWindow
 {
     private MonsterType _selectedMonsterType = MonsterType.None;
+    private MonsterType _previousSelectedMonsterType = MonsterType.None;
+    private List<GameObject> _selectableGameObjects = new List<GameObject>();
+    private int _selectionIndex = 0;
 
     [MenuItem("Window/Monster Selector")]
     public static void ShowWindow()
@@ -20,29 +24,93 @@ public class MonsterSelectorWindow : EditorWindow
         GUILayout.Label("Selection Filters:", EditorStyles.boldLabel);
         _selectedMonsterType = (MonsterType)EditorGUILayout.EnumPopup(
             "MonsterType to select:", _selectedMonsterType);
-        EditorGUILayout.Space(10);
+        UpdateSelectableIfSelectionChanged();
 
+        EditorGUILayout.Space(10);
         if (GUILayout.Button("Select All"))
         {
             SelectAllMonsters();
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label("Cycle Selection:");
+        if (GUILayout.Button("Previous"))
+        {
+            SelectPrevious();
+        }
+        if (GUILayout.Button("Next"))
+        {
+            SelectNext();
+        }
+        EditorGUILayout.EndHorizontal();
+    }
+
+    private void UpdateSelectableIfSelectionChanged()
+    {
+        if (_selectedMonsterType != _previousSelectedMonsterType)
+        {
+            UpdateSelectable();
+            _previousSelectedMonsterType = _selectedMonsterType;
         }
     }
 
     private void SelectAllMonsters()
     {
+        Selection.objects = _selectableGameObjects.ToArray();
+    }
+
+    private void SelectNext()
+    {
+        // Check if list is valid
+        if (_selectableGameObjects.Count <= 0)
+            return;
+
+        // If at end, go back to beginning
+        if (_selectionIndex >= _selectableGameObjects.Count - 1)
+            _selectionIndex = 0;
+        // Otherwise increase index to next one
+        else
+            _selectionIndex++;
+
+        // Ensure next index object is valid
+        if (_selectableGameObjects[_selectionIndex] != null)
+            Selection.activeObject = _selectableGameObjects[_selectionIndex];
+    }
+
+    private void SelectPrevious()
+    {
+        if (_selectableGameObjects.Count <= 0)
+            return;
+
+        if (_selectionIndex <= 0)
+            _selectionIndex = _selectableGameObjects.Count - 1;
+        else
+            _selectionIndex--;
+
+        if (_selectableGameObjects[_selectionIndex] != null)
+            Selection.activeObject = _selectableGameObjects[_selectionIndex];
+    }
+
+    private void UpdateSelectable()
+    {
+        _selectableGameObjects.Clear();
+
         // Collect all monsters in scene
         Monster[] monsters = FindObjectsOfType<Monster>();
-        // Create temporary list to store valid monsters as we check
-        List<GameObject> finalSelection = new List<GameObject>();
+
         // Check each monster, store if type matches
         foreach (Monster monster in monsters)
         {
             if (monster.Data.MonsterType == _selectedMonsterType)
             {
-                finalSelection.Add(monster.gameObject);
+                _selectableGameObjects.Add(monster.gameObject);
             }
         }
-        // Create a selection from valid monsters
-        Selection.objects = finalSelection.ToArray();
+    }
+
+    private void OnHierarchyChange()
+    {
+        // Without changing selection, making a new monster updates selection
+        UpdateSelectable();
     }
 }
